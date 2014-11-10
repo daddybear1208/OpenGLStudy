@@ -1,0 +1,121 @@
+# set project's name
+PROJECT( OpenGLStudy )
+
+#ADD_DEFINITIONS(-DUNICODE)
+ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS)
+
+###############################################################################
+# CMake settings
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
+SET(CMAKE_COLOR_MAKEFILE ON)
+SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
+
+# Allow advanced users to generate Makefiles printing detailed commands
+MARK_AS_ADVANCED(CMAKE_VERBOSE_MAKEFILE)
+
+# Path to additional CMake modules
+SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+
+SET(CMAKE_DEBUG_POSTFIX "d")
+	
+#large address aware option setting
+IF(${MINGW})
+	SET(LARGEADDRESSAWARE "--large-address-aware")
+ELSE(${MINGW})
+	IF (WIN32)
+		SET(LARGEADDRESSAWARE "/LARGEADDRESSAWARE")
+	ELSE (WIN32)
+		SET(LARGEADDRESSAWARE " ")
+	ENDIF (WIN32)
+ENDIF (${MINGW})
+
+IF (WIN32)
+	SET(APP_OPT "WIN32")
+ELSE (WIN32)
+	IF (APPLE)
+		#SET(APP_OPT "MACOSX_BUNDLE")
+		SET(APP_OPT "EXCLUDE_FROM_ALL")
+	ELSE (APPLE)
+		SET(APP_OPT " ")
+	ENDIF (APPLE)
+ENDIF (WIN32)
+
+# Multiple Cores 
+INCLUDE(CountProcessors)
+SET(NUMBER_OF_CPUS "${PROCESSOR_COUNT}" CACHE STRING "The number of processors to use (default: ${PROCESSOR_COUNT})" )
+
+#OpenMP
+FIND_PACKAGE(OpenMP)
+IF(OPENMP_FOUND)
+	OPTION(WITH_OPENMP "Whether to use parallel processing capabilities of OPENMP. ON/OFF" ON)
+ENDIF(OPENMP_FOUND)
+
+IF(OPENMP_FOUND AND WITH_OPENMP)
+	MESSAGE(STATUS "With OpenMP ")
+	SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMAX_OPENMP_NUM_THREADS=${PROCESSOR_COUNT} -DOPENMP_NUM_THREADS=${PROCESSOR_COUNT} ${OpenMP_CXX_FLAGS} -DOPENMP")
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMAX_OPENMP_NUM_THREADS=${PROCESSOR_COUNT} -DOPENMP_NUM_THREADS=${PROCESSOR_COUNT} ${OpenMP_CXX_FLAGS} ${OpenMP_C_FLAGS} -DOPENMP")
+ELSE(OPENMP_FOUND AND WITH_OPENMP)
+	MESSAGE(STATUS "Without OpenMP")
+	#SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMAX_OPENMP_NUM_THREADS=${PROCESSOR_COUNT} -DOPENMP_NUM_THREADS=${PROCESSOR_COUNT}")
+	#SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMAX_OPENMP_NUM_THREADS=${PROCESSOR_COUNT} -DOPENMP_NUM_THREADS=${PROCESSOR_COUNT}")
+	SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMAX_OPENMP_NUM_THREADS=1 -DOPENMP_NUM_THREADS=1")
+	SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMAX_OPENMP_NUM_THREADS=1 -DOPENMP_NUM_THREADS=1")
+ENDIF(OPENMP_FOUND AND WITH_OPENMP)
+
+FIND_PACKAGE(OpenGL REQUIRED)
+IF(NOT OPENGL_FOUND)
+	MESSAGE( SEND_ERROR "OpenGL required, but not found with 'find_package()'" )
+ELSE()
+	INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
+ENDIF()
+
+FIND_PACKAGE(FreeGLUT REQUIRED)
+IF(NOT FREEGLUT_FOUND)
+	MESSAGE( SEND_ERROR "GLUT required, but not found with 'find_package()'" )
+ELSE()
+	INCLUDE_DIRECTORIES(${FREEGLUT_INCLUDE_DIRS})
+ENDIF()
+
+# Set the include directories
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR})
+INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
+
+# Setup output directories
+SET(LIBRARY_OUTPUT_PATH 
+	${PROJECT_BINARY_DIR}/bin
+	CACHE
+	PATH
+	"Single directory for all libraries")
+	
+SET(EXECUTABLE_OUTPUT_PATH 
+	${PROJECT_BINARY_DIR}/bin
+	CACHE
+	PATH
+	"Single directory for all executables")
+
+# enable warnings
+#ADD_DEFINITIONS( -Wall )
+
+FIND_PACKAGE(Qt4 REQUIRED QtCore QtGui QtOpenGL)
+
+SET(QT_USE_QTMAIN TRUE)
+SET(QT_USE_QTOPENGL TRUE)
+
+# add some useful macros and variables
+# (QT_USE_FILE is a variable defined by FIND_PACKAGE( Qt4 ) that contains a path to CMake script)
+INCLUDE( ${QT_USE_FILE} )
+
+# Find mocable files (simply look for Q_OBJECT in all files!)
+function( find_mocable_files __out_var_name )   # + input list
+    set( local_list )
+    foreach( one_file ${ARGN} )
+        file( READ ${one_file} stream )
+        if( stream MATCHES "Q_OBJECT" )
+            list( APPEND local_list ${one_file} )
+        endif()
+    endforeach()
+    set( ${__out_var_name} ${local_list} PARENT_SCOPE )
+endfunction()
+
+ADD_SUBDIRECTORY(src)
