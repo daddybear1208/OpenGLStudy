@@ -117,5 +117,5 @@ function( find_mocable_files __out_var_name )   # + input list
     endforeach()
     set( ${__out_var_name} ${local_list} PARENT_SCOPE )
 endfunction()
-
+ADD_SUBDIRECTORY(glew)
 ADD_SUBDIRECTORY(src)
