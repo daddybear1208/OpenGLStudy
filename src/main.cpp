@@ -9,33 +9,53 @@
 
 using namespace std;
 
-static GLfloat vertex[] = { 10, 10, 0,
-					200, 10, 0,
-					200, 200, 0,
-					10, 200, 0};
+enum Buffer_IDs
+{
+	VerticesBuf,
+	IndicesBuf,
+	NumBuffers
+};
 
-static GLfloat colors[] = {255,0,0,
-						255,0,0,
-						0,255,0,
-						0,255,0};
+GLuint buffers[NumBuffers];
 
-GLbyte indices[] = { 0, 1, 2, 3 };
+GLfloat vertices[][3] = 
+{
+	{-100.0,-100.0,-100.0},
+	{100.0,-100.0,-100.0},
+	{100.0,100.0,-100.0},
+	{-100.0,100.0,-100.0},
+	{-100.0,-100.0,100.0},
+	{100.0,-100.0,100.0},
+	{100.0,100.0,100.0},
+	{-100.0,100.0,100.0}
+};
+
+GLubyte indices[][4] = 
+{
+	{0,1,2,3},
+	{4,7,6,5},
+	{0,4,5,1},
+	{3,2,6,7},
+	{0,3,7,4},
+	{1,5,6,2}
+};
 
 void init()
 {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	
+	glGenBuffers(NumBuffers, buffers);
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[VerticesBuf]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[IndicesBuf]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), 0, GL_STATIC_DRAW);
 }
 
 void display()
 {
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	glVertexPointer(3, GL_FLOAT, 0, vertex);
-	glColorPointer(3, GL_FLOAT, 0, colors);
-	glDrawArrays(GL_QUADS, 0, 4);
-	glutSwapBuffers();
+	glColor3f(1.0, 0.0, 0.0);
+	glVertexPointer(3, GL_FLOAT, 0, 0);
+	glDrawElements(GL_QUADS, 24, GL_UNSIGNED_BYTE, 0);
 }
 
 void reshape(int w, int h)
