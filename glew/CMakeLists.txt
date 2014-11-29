@@ -6,3 +6,4 @@ ADD_LIBRARY( ${PROJECT_NAME} STATIC include/GL/glew.h src/glew.c )
 #set_default_cs_preproc( ${PROJECT_NAME} )
 # Add custom prepocessor definitions
 set_property( TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS GLEW_STATIC )
+SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES FOLDER Libs)

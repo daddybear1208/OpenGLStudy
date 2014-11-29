@@ -97,7 +97,7 @@ SET(EXECUTABLE_OUTPUT_PATH
 # enable warnings
 #ADD_DEFINITIONS( -Wall )
 
-FIND_PACKAGE(Qt4 REQUIRED QtCore QtGui QtOpenGL)
+FIND_PACKAGE(Qt4 REQUIRED QtCore QtGui QtOpenGL QtXml QtXmlPatterns)
 
 SET(QT_USE_QTMAIN TRUE)
 SET(QT_USE_QTOPENGL TRUE)
@@ -118,4 +118,6 @@ function( find_mocable_files __out_var_name )   # + input list
     set( ${__out_var_name} ${local_list} PARENT_SCOPE )
 endfunction()
 ADD_SUBDIRECTORY(glew)
+ADD_SUBDIRECTORY(QGLViewer)
 ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(CloudViewer)
