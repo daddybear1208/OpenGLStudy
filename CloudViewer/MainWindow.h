@@ -3,6 +3,7 @@
 
 #include <QtGui>
 #include <QMainWindow>
+#include <QFileDialog>
 
 #include "PCViewer.h"
 #include "ui_MainWindow.h"
